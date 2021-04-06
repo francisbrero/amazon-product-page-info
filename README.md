@@ -10,5 +10,11 @@ next step => load a csv of all SKUs and append the information at runtime
 `chmod +x ./setup_env.sh`
 `npm install`
 
-## load the tools (python and node.js)
-`. setup_env.sh`
+## load the tools (python and node.js) and start virtuel env
+`sh setup_env.sh`
+
+## Stop virtual env
+`deactivate` 
+
+test 
+`node lib/get_info.js B006GQHRU8`
