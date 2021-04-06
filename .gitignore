@@ -111,5 +111,9 @@ debug/*.png
 
 # data folders
 data/*.*
+data/**
 output/*.csv
-data/*
+
+
+#pyhon virtual env
+env/
