@@ -6,15 +6,26 @@ Hit the amazon page of a SKU, look for div id="availability" as well as "tabular
 next step => load a csv of all SKUs and append the information at runtime
 
 ## first time?
-`python3 -m venv env`
-`chmod +x ./setup_env.sh`
-`npm install`
+`python3 -m venv env
+chmod +x ./setup_env.sh
+npm install`
 
 ## load the tools (python and node.js) and start virtuel env
-`sh setup_env.sh`
+`python3 -m venv "./env"
+source "./env/bin/activate"
+sh setup_env.sh`
+
+## Update the list of SKUs to monitor
+in input>sku_list.csv add the SKUs to listen to
+
+## Run it!!!!
+`python lib/info_parse.py`
+
+You will now have an output csv with the desired goods
 
 ## Stop virtual env
 `deactivate` 
 
-test 
+## Debug
+### test 
 `node lib/get_info.js B006GQHRU8`
