@@ -33,3 +33,10 @@ You will now have an output csv with the desired goods
 ## Debug
 ### test 
 `node lib/get_info.js B006GQHRU8`
+
+## Context
+This leverages nightmare.js which was developed by Segment as a scraper on top of electron
+Possible improvements
+- store website in memory rather than writing on disk
+- multi-thread
+This could be made into a Lambda to scale and be managed more easily
