@@ -27,12 +27,13 @@ err = 0
 f = open('./output/amazon_stuff.csv', 'w+')
 f.write('"sku", "availability","sold by", "ship by"\n')
 
-# Load the progressBar
+sku_retry = []
 
 with open('./input/sku_list.csv', newline='') as csvfile:
 	# Open the CSV file and read it to obtain all the SKUs
 	sku_reader = csv.reader(csvfile, delimiter=' ', quotechar='|')
-
+	
+	# Load the progressBar
 	pbar = tqdm.tqdm(sku_reader, desc="Reviewing SKUs", unit="SKU", unit_scale=True)
 	# Process each SKUs
 	for row in pbar:
@@ -66,10 +67,62 @@ with open('./input/sku_list.csv', newline='') as csvfile:
 				cnt =+1
 			except:
 				print("error with SKU " + sku)
+				sku_retry.append(sku)
 				err =+1
 
 		else:
 		    # JavaScript is failed
 		    print("something went wrong with row "+row)
+		    sku_retry.append(sku)
+		    err =+1
 	
-print("and we're done!")
+	# Rety on the SKUs where there was an error
+	print("retrying for the " + err + "SKUs that returned an error on first try")
+	err = 0
+	for item in sku_retry:
+		try:
+			result = execute_js('lib/get_info.js '+' '.join(item))
+		except:
+			print('could not scrape')
+		if result:
+		    # JavaScript is successfully executed
+		    # Open file and parse
+			with open('./data/page.html', 'rb') as file:
+			    soup = BeautifulSoup(file,"html.parser")
+
+			# initialize
+			sku = ' '.join(item)
+			avail = ''
+			sold_by = ''
+			ship_by = ''
+
+			try:
+				avail = soup.find_all("div", id="availability".split())[0].text.strip()
+
+				sold_buy_box = soup.find_all("span", id="tabular-buybox-truncate-0".split())[0]
+				sold_by = sold_buy_box.find("span", class_="tabular-buybox-text").text.strip()
+
+				ship_by_box = soup.find_all("span", id="tabular-buybox-truncate-1".split())[0]
+				ship_by = ship_by_box.find("span", class_="tabular-buybox-text").text.strip()
+
+			
+				f.write('"' + sku + '", "' + avail + '", "' + sold_by + '"' +',"' + ship_by + '"\n')
+			except:
+				print("error with retry for SKU " + sku)
+				err =+1
+
+		else:
+		    # JavaScript is failed
+		    print("something went wrong on retry with SKU " + item)
+		    err =+1
+print(r"""
+ ________  ________  ________   _______           ________      ___    ___      ________  ___  ________  ___  ___  ________  ___  ________  ___  ___     
+|\   ___ \|\   __  \|\   ___  \|\  ___ \         |\   __  \    |\  \  /  /|    |\   __  \|\  \|\   __  \|\  \|\  \|\   __  \|\  \|\   __  \|\  \|\  \    
+\ \  \_|\ \ \  \|\  \ \  \\ \  \ \   __/|        \ \  \|\ /_   \ \  \/  / /    \ \  \|\  \ \  \ \  \|\  \ \  \\\  \ \  \|\  \ \  \ \  \|\  \ \  \\\  \   
+ \ \  \ \\ \ \  \\\  \ \  \\ \  \ \  \_|/__       \ \   __  \   \ \    / /      \ \   ____\ \  \ \  \\\  \ \  \\\  \ \   ____\ \  \ \  \\\  \ \  \\\  \  
+  \ \  \_\\ \ \  \\\  \ \  \\ \  \ \  \_|\ \       \ \  \|\  \   \/  /  /        \ \  \___|\ \  \ \  \\\  \ \  \\\  \ \  \___|\ \  \ \  \\\  \ \  \\\  \ 
+   \ \_______\ \_______\ \__\\ \__\ \_______\       \ \_______\__/  / /           \ \__\    \ \__\ \_______\ \_______\ \__\    \ \__\ \_______\ \_______\
+    \|_______|\|_______|\|__| \|__|\|_______|        \|_______|\___/ /             \|__|     \|__|\|_______|\|_______|\|__|     \|__|\|_______|\|_______|
+                                                              \|___|/                                                                                    
+                """)
+print("you're welcome!")
