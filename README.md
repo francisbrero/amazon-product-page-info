@@ -23,7 +23,7 @@ next step => load a csv of all SKUs and append the information at runtime
 in input>sku_list.csv add the SKUs to listen to
 
 ## Run it!!!!
-`python lib/info_parse.py`
+`python lib/main.py`
 
 You will now have an output csv with the desired goods
 
