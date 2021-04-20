@@ -29,13 +29,13 @@ cnt = 0
 err = 0
 
 async def write_result(result, writer):
-	print(result)
+	# print(result)
 	try:
 		writer.writerow(result)
 	except:
 		print("failed to write")
 
-async def parse_sku(sku: str, writer):
+async def parse_sku(sku: str, writer, retry):
 	print('looking into ' + sku)
 	try:
 		result = execute_js('lib/get_info.js '+' ' + sku)
@@ -70,7 +70,8 @@ async def parse_sku(sku: str, writer):
 				sold_by = 'N/A'
 				ship_by = 'N/A'
 				
-				await write_result(avail, writer)
+				new_row = [sku.strip(), avail, sold_by, ship_by]
+				await write_result(new_row, writer)
 				# f.write('"' + sku + '", "' + avail + '", "' + sold_by + '"' +',"' + ship_by + '"\n')
 				cnt =+1
 			except:
@@ -101,13 +102,16 @@ async def parse_sku(sku: str, writer):
 						print("error with parsing info for SKU " + sku)
 						err =+1
 	except:
+		new_row = [sku.strip()]
+		await write_result(new_row, retry)	
 		print('could not scrape SKU ' + sku)
 
 
 async def main():
-	with open('./input/sku_list.csv', newline='') as csv_in, open("./output/amazon_stuff.csv", 'w+') as csv_out:
+	with open('./input/sku_list.csv', newline='') as csv_in, open("./output/amazon_stuff.csv", 'w+') as csv_out, open("./input/sku_list_retry.csv", 'w+') as csv_retry:
 		writer = csv.writer(csv_out, delimiter=',')
-		amazon_info = [parse_sku(row, writer) for row in csv_in]
+		retry = csv.writer(csv_retry, delimiter=',')
+		amazon_info = [parse_sku(row, writer, retry) for row in csv_in]
 		await asyncio.gather(*amazon_info)
 		print('!--- finished processing')
 
