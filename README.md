@@ -31,8 +31,15 @@ You will now have an output csv with the desired goods
 `deactivate` 
 
 ## Debug
-### test 
+### test the scraper
+there are 2 parameters:
+
+- sku
+- true/false (default is false) => if you activate true the scraper will show the page it's scraping
+
 `node lib/get_info.js B006GQHRU8`
+
+`node lib/get_info.js B006GQHRU8 true`
 
 ## Context
 This leverages nightmare.js which was developed by Segment as a scraper on top of electron

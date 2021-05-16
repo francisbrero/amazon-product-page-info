@@ -24,6 +24,11 @@ try:
 except ImportError:
 	print("could not load async")
 
+try:
+	import time
+except ImportError:
+	print("could not load time")
+
 
 cnt = 0
 err = 0
@@ -35,8 +40,8 @@ async def write_result(result, writer):
 	except:
 		print("failed to write")
 
-async def parse_sku(sku: str, writer, retry):
-	print('looking into ' + sku)
+async def parse_sku(sku: str, writer, retry, cnt):
+	print('processing sku: '+sku)
 	try:
 		result = execute_js('lib/get_info.js '+' ' + sku)
 	    # JavaScript is successfully executed
@@ -61,7 +66,7 @@ async def parse_sku(sku: str, writer, retry):
 			new_row = [sku.strip(), avail, sold_by, ship_by]
 			await write_result(new_row, writer)			
 			# f.write('"' + sku + '", "' + avail + '", "' + sold_by + '"' +',"' + ship_by + '"\n')
-			cnt =+1
+			cnt = cnt +1
 		except:
 			# in some cases there is no seller available and there is only a buybox to show all options => we'll process that separately
 			# let's check to see if there is that buybox option there if so we consider the product not available
@@ -73,7 +78,7 @@ async def parse_sku(sku: str, writer, retry):
 				new_row = [sku.strip(), avail, sold_by, ship_by]
 				await write_result(new_row, writer)
 				# f.write('"' + sku + '", "' + avail + '", "' + sold_by + '"' +',"' + ship_by + '"\n')
-				cnt =+1
+				cnt = cnt +1
 			except:
 				# in some cases only second hand products are available
 				try:
@@ -85,7 +90,7 @@ async def parse_sku(sku: str, writer, retry):
 					new_row = [sku.strip(), avail, sold_by, ship_by]
 					await write_result(new_row, writer)	
 					# f.write('"' + sku + '", "' + avail + '", "' + sold_by + '"' +',"' + ship_by + '"\n')
-					cnt =+1
+					cnt = cnt +1
 				except:
 					# in some rare cases, products are completely out of stock
 					try: 
@@ -97,21 +102,23 @@ async def parse_sku(sku: str, writer, retry):
 						new_row = [sku.strip(), avail, sold_by, ship_by]
 						await write_result(new_row, writer)	
 						# f.write('"' + sku + '", "' + avail + '", "' + sold_by + '"' +',"' + ship_by + '"\n')
-						cnt =+1
+						cnt = cnt +1
 					except:
-						print("error with parsing info for SKU " + sku)
-						err =+1
+						# print("error with parsing info for SKU " + sku)
+						err = err +1
+						new_row = [sku.strip()]
+						await write_result(new_row, retry)			
 	except:
 		new_row = [sku.strip()]
 		await write_result(new_row, retry)	
-		print('could not scrape SKU ' + sku)
+		# print('could not scrape SKU ' + sku)
 
 
 async def main():
 	with open('./input/sku_list.csv', newline='') as csv_in, open("./output/amazon_stuff.csv", 'w+') as csv_out, open("./input/sku_list_retry.csv", 'w+') as csv_retry:
 		writer = csv.writer(csv_out, delimiter=',')
 		retry = csv.writer(csv_retry, delimiter=',')
-		amazon_info = [parse_sku(row, writer, retry) for row in csv_in]
+		amazon_info = [parse_sku(row, writer, retry, cnt) for row in csv_in]
 		await asyncio.gather(*amazon_info)
 		print('!--- finished processing')
 

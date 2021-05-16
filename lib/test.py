@@ -27,7 +27,7 @@ sku = 'B006GQHRU8'
 
 def parse_sku(sku: str):
 	try:
-		result = execute_js('lib/get_info.js '+' '+sku)
+		result = execute_js('lib/get_info.js '+' '+sku+' true')
 		with open('./data/page.html', 'rb') as file:
 			soup = BeautifulSoup(file,"html.parser")
 			avail = ''
