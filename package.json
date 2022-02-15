@@ -2,16 +2,17 @@
   "name": "francis",
   "version": "1.0.0",
   "description": "scrape data from amazon product pages",
-  "main": "/lib/get_info.js",
+  "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node ./lib/get_avail.js B08PQJQ3T9",
+    "start": "node ./lib/get_avail.js B08PQJQ3T9"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/francisbrero/slack-information-scraper.git"
+    "url": "git+https://github.com/francisbrero/amazon-product-page-info.git"
   },
   "keywords": [
-    "slack",
+    "amazon",
     "scraper"
   ],
   "author": "francis@madkudu.com",
@@ -21,10 +22,11 @@
   },
   "homepage": "https://github.com/francisbrero/amazon-product-page-info#readme",
   "engines": {
-    "node": "4.4.7",
-    "npm": "2.15.8"
+    "node": "17.2.0",
+    "npm": "8.3.0"
   },
   "dependencies": {
-    "nightmare": "2.8.1"
+    "nightmare": "2.8.1",
+    "puppeteer": "13.0.0"
   }
 }
